@@ -39,21 +39,31 @@
     </div>
   </nav>
 
-  <main class="map-area">
-    <div class="map-controls">
-      <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
-      <button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
-      <button id="zoomReset" title="Reset view" aria-label="Reset view">⟲</button>
-    </div>
-    <svg id="map" role="img" aria-label="World choropleth of rice production"></svg>
+  <div class="content">
+    <main class="map-area">
+      <div class="map-controls">
+        <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+        <button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+        <button id="zoomReset" title="Reset view" aria-label="Reset view">⟲</button>
+      </div>
+      <svg id="map" role="img" aria-label="World choropleth of rice production"></svg>
 
-    <div class="legend-panel">
-      <div id="legendTitle" class="legend-title">Production (tonnes)</div>
-      <svg id="legend" aria-hidden="true"></svg>
-    </div>
+      <div class="legend-panel">
+        <div id="legendTitle" class="legend-title">Production (tonnes)</div>
+        <svg id="legend" aria-hidden="true"></svg>
+      </div>
 
-    <div id="loading" class="loading">Loading data…</div>
-  </main>
+      <div id="loading" class="loading">Loading data…</div>
+    </main>
+
+    <aside class="ranking" aria-label="Top countries ranking">
+      <div class="ranking-header">
+        <h2 id="rankingTitle">Top 20 Countries</h2>
+        <p id="rankingSub" class="ranking-sub">Production (tonnes) · 2024</p>
+      </div>
+      <ol id="rankList" class="rank-list"></ol>
+    </aside>
+  </div>
 
   <div id="tooltip" class="tooltip" role="status" aria-live="polite" hidden></div>
 
