@@ -38,6 +38,8 @@
     loading: document.getElementById('loading'),
     search: document.getElementById('countrySearch'),
     datalist: document.getElementById('countryList'),
+    rankList: document.getElementById('rankList'),
+    rankingSub: document.getElementById('rankingSub'),
     zoomIn: document.getElementById('zoomIn'),
     zoomOut: document.getElementById('zoomOut'),
     zoomReset: document.getElementById('zoomReset'),
@@ -329,6 +331,15 @@
       positionTooltip(svgRect.left + px, svgRect.top + py);
     }
     countrySel.classed('pinned', (f) => f.properties.iso_a3 === state.pinned);
+    syncRankingHighlight();
+  }
+
+  // Reflect the pinned country in the ranking list without a full re-render.
+  function syncRankingHighlight() {
+    if (!el.rankList) return;
+    el.rankList.querySelectorAll('.rank-item').forEach((li) => {
+      li.classList.toggle('is-active', li.dataset.iso === state.pinned);
+    });
   }
 
   // ---------------------------------------------------------------- controls
@@ -343,6 +354,7 @@
     renderLegend();
     updateFills();
     refreshActiveTooltip();
+    renderRanking();
   }
 
   function setYear(year, { updateSlider = true } = {}) {
@@ -352,6 +364,7 @@
     if (updateSlider) el.slider.value = year;
     updateFills();
     refreshActiveTooltip();
+    renderRanking();
   }
 
   // debounce slider so dragging doesn't thrash transitions
@@ -403,17 +416,10 @@
     el.datalist.innerHTML = opts.map((n) => `<option value="${escapeHTML(n)}"></option>`).join('');
   }
 
-  function onSearch() {
-    const term = el.search.value.trim().toLowerCase();
-    if (!term) return;
-    const entry = Object.entries(state.data.countries).find(
-      ([, c]) => c.name.toLowerCase() === term
-    );
-    if (!entry) return;
-    const iso = entry[0];
+  // Pin and zoom the map to a country by ISO3 (shared by search + ranking list).
+  function focusCountry(iso) {
     const d = countrySel.data().find((f) => f.properties.iso_a3 === iso);
-    if (!d) return; // no polygon (small island / aggregate)
-    // pin + zoom to the country
+    if (!d) return false; // no polygon (small island / aggregate)
     state.pinned = null; // reset so togglePin pins fresh
     togglePin(d);
     const [[x0, y0], [x1, y1]] = path.bounds(d);
@@ -427,6 +433,64 @@
       .transition()
       .duration(600)
       .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    return true;
+  }
+
+  function onSearch() {
+    const term = el.search.value.trim().toLowerCase();
+    if (!term) return;
+    const entry = Object.entries(state.data.countries).find(
+      ([, c]) => c.name.toLowerCase() === term
+    );
+    if (entry) focusCountry(entry[0]);
+  }
+
+  // ---------------------------------------------------------------- ranking
+  // Top-20 countries for the active metric and year, re-rendered on any change.
+  function renderRanking() {
+    const metric = state.metric;
+    const year = state.year;
+    const cfg = state.data.meta.metrics[metric];
+    el.rankingSub.textContent = `${cfg.label} · ${year}`;
+
+    const ranked = [];
+    for (const iso of Object.keys(state.data.countries)) {
+      if (iso.startsWith('OWID_')) continue; // skip aggregates (World, regions…)
+      const v = metricValue(iso, year, metric);
+      if (v === undefined) continue;
+      ranked.push({ iso, name: state.data.countries[iso].name, value: v });
+    }
+    ranked.sort((a, b) => b.value - a.value);
+    const top = ranked.slice(0, 20);
+
+    if (top.length === 0) {
+      el.rankList.innerHTML = `<li class="rank-empty">No data for ${year}</li>`;
+      return;
+    }
+
+    const max = top[0].value;
+    const unitSuffix = metric === 'production' ? ' t' : metric === 'area' ? ' ha' : '';
+    el.rankList.innerHTML = top
+      .map((r, i) => {
+        const pct = max > 0 ? (r.value / max) * 100 : 0;
+        const val = (metric === 'yield' ? fmtYield(r.value) : fmtInt(r.value)) + unitSuffix;
+        const active = state.pinned === r.iso ? ' is-active' : '';
+        return (
+          `<li class="rank-item${active}" data-iso="${r.iso}" title="Click to highlight on map">` +
+          `<span class="rank-bar" style="width:${pct}%"></span>` +
+          `<span class="rank-num">${i + 1}</span>` +
+          `<span class="rank-name">${escapeHTML(r.name)}</span>` +
+          `<span class="rank-val">${val}</span>` +
+          `</li>`
+        );
+      })
+      .join('');
+  }
+
+  function onRankClick(event) {
+    const li = event.target.closest('.rank-item');
+    if (!li) return;
+    focusCountry(li.dataset.iso);
   }
 
   // ---------------------------------------------------------------- init
@@ -438,6 +502,7 @@
     el.zoomOut.addEventListener('click', () => zoomBy(1 / 1.5));
     el.zoomReset.addEventListener('click', resetZoom);
     el.search.addEventListener('change', onSearch);
+    el.rankList.addEventListener('click', onRankClick);
     window.addEventListener('resize', debounce(sizeMap, 150));
   }
 
@@ -468,6 +533,7 @@
       buildColorScales();
       renderMap(topo);
       renderLegend();
+      renderRanking();
       populateSearch();
       wireEvents();
 

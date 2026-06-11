@@ -24,6 +24,9 @@ yield.
   follows the cursor, clamps to the viewport, and clears on mouse-out.
 - **Click-to-pin** tooltip and a **searchable country list** so small
   countries are easy to inspect; search also zooms to the country.
+- **Top-20 ranking sidebar** listing the leading countries for the active
+  metric and year (with a proportional bar), updating live as the year or
+  metric changes; click a row to highlight and zoom to that country.
 - **Zoom/pan** with +, −, and reset controls.
 - **No-data handling**: countries with no rice figure for the selected year
   are shaded light gray and report "No data" in the tooltip.
