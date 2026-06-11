@@ -33,8 +33,10 @@ yield.
 - **Zoom/pan** with +, −, and reset controls.
 - **No-data handling**: countries with no rice figure for the selected year
   are shaded light gray and report "No data" in the tooltip.
-- Smooth ~300 ms fill transitions on year/metric change; responsive down to
-  ~1024 px.
+- Smooth ~300 ms fill transitions on year/metric change. Responsive layout:
+  side-by-side map and ranking on desktop, collapsing on phones (≤768 px) to a
+  vertical stack — map, then the metric bar, then the ranking list — that
+  scrolls with the page.
 
 ## Project layout
 

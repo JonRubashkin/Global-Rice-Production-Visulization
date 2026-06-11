@@ -367,3 +367,27 @@ body {
   #countrySearch { width: 100%; }
   .ranking { width: 280px; flex-basis: 280px; }
 }
+
+/* Phones / narrow screens: stack vertically as
+   map → metric bar → ranking list, and let the page scroll. */
+@media (max-width: 768px) {
+  /* Dissolve the flex row so the map and ranking become body flex items,
+     letting us reorder them around the metric toggle bar. */
+  .content { display: contents; }
+
+  .topbar { order: 0; }
+  .map-area { order: 1; flex: none; height: 56vh; min-height: 300px; }
+  .metric-toggle { order: 2; }
+  .ranking { order: 3; }
+  .footer { order: 4; }
+
+  /* Ranking spans full width, flows under the map+bar, scrolls with the page. */
+  .ranking {
+    width: 100%;
+    flex-basis: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .rank-list { overflow: visible; flex: none; }
+}
+
