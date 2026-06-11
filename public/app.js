@@ -205,6 +205,33 @@
   }
 
   // ---------------------------------------------------------------- tooltip
+  // Population series ends a year before the rice data. If the selected year
+  // has no population, fall back to the most recent earlier year that does and
+  // report which year it came from, so the row is never silently blank.
+  function populationFor(rec, year) {
+    if (!rec) return null;
+    const direct = rec.years[year];
+    if (direct && direct.population != null) return { value: direct.population, year };
+    let best = null;
+    for (const yStr of Object.keys(rec.years)) {
+      const yr = Number(yStr);
+      if (yr > year) continue;
+      const v = rec.years[yStr].population;
+      if (v == null) continue;
+      if (!best || yr > best.year) best = { value: v, year: yr };
+    }
+    return best;
+  }
+
+  function populationRow(rec) {
+    const pop = populationFor(rec, state.year);
+    if (!pop) {
+      return `<div class="tt-row"><span class="tt-label">Population</span><span class="tt-val">—</span></div>`;
+    }
+    const label = pop.year === state.year ? 'Population' : `Population (${pop.year})`;
+    return `<div class="tt-row"><span class="tt-label">${label}</span><span class="tt-val">${fmtInt(pop.value)}</span></div>`;
+  }
+
   function tooltipHTML(d) {
     const iso = d.properties.iso_a3;
     const name = (state.data.countries[iso] && state.data.countries[iso].name) || d.properties.name;
@@ -217,20 +244,18 @@
       return (
         `<div class="tt-name">${escapeHTML(name)}${pinNote}</div>` +
         `<div class="tt-nodata">No data for ${state.year}</div>` +
-        (y && y.population != null
-          ? `<div class="tt-row"><span class="tt-label">Population</span><span class="tt-val">${fmtInt(y.population)}</span></div>`
-          : '')
+        populationRow(rec)
       );
     }
 
     const rows = [
-      ['Population', y.population != null ? fmtInt(y.population) : '—'],
       ['Area harvested', y.area != null ? `${fmtInt(y.area)} ha` : '—'],
       ['Production', y.production != null ? `${fmtInt(y.production)} t` : '—'],
       ['Yield', y.yield != null ? `${fmtYield(y.yield)} t/ha` : '—'],
     ];
     return (
       `<div class="tt-name">${escapeHTML(name)}${pinNote}</div>` +
+      populationRow(rec) +
       rows
         .map(
           ([l, v]) =>
