@@ -375,7 +375,14 @@ body {
      letting us reorder them around the metric toggle bar. */
   .content { display: contents; }
 
-  .topbar { order: 0; }
+  /* Keep the title + year slider pinned while the page scrolls the ranking. */
+  .topbar {
+    order: 0;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  }
   .map-area { order: 1; flex: none; height: 56vh; min-height: 300px; }
   .metric-toggle { order: 2; }
   .ranking { order: 3; }
