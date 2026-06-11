@@ -1,0 +1,12 @@
+{
+  "name": "global-rice-production-visualization",
+  "version": "1.0.0",
+  "description": "Single-page interactive D3 choropleth of global rice production, 1961–2024.",
+  "type": "module",
+  "scripts": {
+    "preprocess": "node scripts/preprocess.mjs",
+    "serve": "node scripts/serve.mjs",
+    "start": "npm run preprocess && npm run serve"
+  },
+  "license": "MIT"
+}
