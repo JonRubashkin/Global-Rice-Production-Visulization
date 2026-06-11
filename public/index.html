@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Rice Production · 1961–2024</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title-block">
+      <h1>Global Rice Production</h1>
+      <p class="subtitle">Paddy rice by country · FAOSTAT via Our World in Data</p>
+    </div>
+
+    <div class="year-control">
+      <button id="playBtn" class="play-btn" aria-label="Play animation" title="Play / pause">▶</button>
+      <div class="slider-wrap">
+        <input id="yearSlider" type="range" min="1961" max="2024" value="2024" step="1"
+               aria-label="Year" />
+        <div class="slider-labels">
+          <span id="yearMin">1961</span>
+          <span id="yearMax">2024</span>
+        </div>
+      </div>
+      <output id="yearValue" class="year-value">2024</output>
+    </div>
+  </header>
+
+  <nav class="metric-toggle" role="tablist" aria-label="Metric">
+    <button class="metric-btn is-active" data-metric="production" role="tab" aria-selected="true">Production (tonnes)</button>
+    <button class="metric-btn" data-metric="area" role="tab" aria-selected="false">Harvested land (ha)</button>
+    <button class="metric-btn" data-metric="yield" role="tab" aria-selected="false">Yield (t/ha)</button>
+
+    <div class="search-wrap">
+      <input id="countrySearch" type="search" list="countryList" placeholder="Find a country…"
+             aria-label="Search for a country" autocomplete="off" />
+      <datalist id="countryList"></datalist>
+    </div>
+  </nav>
+
+  <main class="map-area">
+    <div class="map-controls">
+      <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+      <button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+      <button id="zoomReset" title="Reset view" aria-label="Reset view">⟲</button>
+    </div>
+    <svg id="map" role="img" aria-label="World choropleth of rice production"></svg>
+
+    <div class="legend-panel">
+      <div id="legendTitle" class="legend-title">Production (tonnes)</div>
+      <svg id="legend" aria-hidden="true"></svg>
+    </div>
+
+    <div id="loading" class="loading">Loading data…</div>
+  </main>
+
+  <div id="tooltip" class="tooltip" role="status" aria-live="polite" hidden></div>
+
+  <footer class="footer">
+    Data: FAOSTAT (rice paddy) &amp; population via Our World in Data · Map: Natural Earth / world-atlas ·
+    Built with D3 v7.
+  </footer>
+
+  <script src="./vendor/d3.min.js"></script>
+  <script src="./vendor/topojson-client.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
