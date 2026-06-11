@@ -65,7 +65,10 @@ rather than area harvested, so **area is derived as `production ÷ yield`**
 2. Drops FAO regional aggregates (rows with an empty `Code`) and **logs every
    one** rather than silently dropping it.
 3. Builds the per-country/per-year record `{ production, area, yield,
-   population }`, computing area from production and yield.
+   population }`, computing area from production and yield. The population
+   series ends in **2023** while rice data runs to **2024**, so for years with
+   no population figure the tooltip falls back to the most recent available
+   year and labels it (e.g. "Population (2023)") rather than showing a blank.
 4. Augments `public/world-110m.json` so each map polygon gets an `iso_a3`
    property — resolved from the TopoJSON's numeric ISO id via
    `world-countries.json`, with an explicit name→ISO override table for the
