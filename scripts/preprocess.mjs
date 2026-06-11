@@ -86,9 +86,11 @@ function loadTable(file) {
 const worldCountries = JSON.parse(readFileSync(p('scripts', 'world-countries.json'), 'utf8'));
 const numericToAlpha3 = new Map();
 const nameToAlpha3 = new Map();
+const alpha3ToAlpha2 = new Map(); // ISO3 -> lowercase ISO2 (for flag SVG filenames)
 const validAlpha3 = new Set();
 for (const c of worldCountries) {
   if (c.ccn3) numericToAlpha3.set(String(Number(c.ccn3)), c.cca3); // strip leading zeros
+  if (c.cca2) alpha3ToAlpha2.set(c.cca3, c.cca2.toLowerCase());
   validAlpha3.add(c.cca3);
   const names = new Set([c.name.common, c.name.official, ...(c.altSpellings || [])]);
   for (const n of names) if (n) nameToAlpha3.set(n.toLowerCase(), c.cca3);
@@ -160,7 +162,11 @@ const countries = {};
 const unmatchedEntities = new Set(); // entities we tried to keep but couldn't resolve
 
 function ensure(code, name) {
-  if (!countries[code]) countries[code] = { name, years: {} };
+  if (!countries[code]) {
+    countries[code] = { name, years: {} };
+    const a2 = alpha3ToAlpha2.get(code);
+    if (a2) countries[code].cca2 = a2; // lowercase ISO2 for flag lookup
+  }
   return countries[code];
 }
 function ensureYear(rec, year) {

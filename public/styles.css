@@ -277,7 +277,7 @@ body {
 .rank-item {
   position: relative;
   display: grid;
-  grid-template-columns: 22px 1fr auto;
+  grid-template-columns: 22px 22px 1fr auto;
   align-items: center;
   gap: 8px;
   padding: 7px 10px;
@@ -285,6 +285,17 @@ body {
   cursor: pointer;
   overflow: hidden;
   transition: background 0.12s;
+}
+.rank-flag {
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  display: block;
+}
+.rank-flag--none {
+  background: var(--panel-2);
 }
 /* proportional bar behind the row */
 .rank-item .rank-bar {
