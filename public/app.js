@@ -458,7 +458,12 @@
       if (iso.startsWith('OWID_')) continue; // skip aggregates (World, regions…)
       const v = metricValue(iso, year, metric);
       if (v === undefined) continue;
-      ranked.push({ iso, name: state.data.countries[iso].name, value: v });
+      ranked.push({
+        iso,
+        name: state.data.countries[iso].name,
+        cca2: state.data.countries[iso].cca2,
+        value: v,
+      });
     }
     ranked.sort((a, b) => b.value - a.value);
     const top = ranked.slice(0, 20);
@@ -475,10 +480,16 @@
         const pct = max > 0 ? (r.value / max) * 100 : 0;
         const val = (metric === 'yield' ? fmtYield(r.value) : fmtInt(r.value)) + unitSuffix;
         const active = state.pinned === r.iso ? ' is-active' : '';
+        // Local flag SVG (./flags/<iso2>.svg); hidden gracefully if absent.
+        const flag = r.cca2
+          ? `<img class="rank-flag" src="./flags/${r.cca2}.svg" alt="" loading="lazy" ` +
+            `onerror="this.style.visibility='hidden'" />`
+          : `<span class="rank-flag rank-flag--none"></span>`;
         return (
           `<li class="rank-item${active}" data-iso="${r.iso}" title="Click to highlight on map">` +
           `<span class="rank-bar" style="width:${pct}%"></span>` +
           `<span class="rank-num">${i + 1}</span>` +
+          flag +
           `<span class="rank-name">${escapeHTML(r.name)}</span>` +
           `<span class="rank-val">${val}</span>` +
           `</li>`
