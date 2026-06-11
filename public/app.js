@@ -8,6 +8,7 @@
     metric: 'production', // 'production' | 'area' | 'yield'
     year: 2024,
     pinned: null, // ISO3 of pinned country (click-to-pin tooltip)
+    hovered: null, // datum of country currently under the cursor (hover tooltip)
     playing: false,
     playTimer: null,
     colorScales: {}, // metric -> d3 scale
@@ -286,6 +287,7 @@
   }
 
   function showTooltip(event, d) {
+    state.hovered = d;
     if (state.pinned) return; // pinned tooltip takes precedence
     const tt = el.tooltip;
     tt.innerHTML = tooltipHTML(d);
@@ -294,14 +296,20 @@
   }
 
   function hideTooltip() {
+    state.hovered = null;
     if (state.pinned) return;
     el.tooltip.hidden = true;
   }
 
-  function refreshPinnedTooltip() {
-    if (!state.pinned) return;
-    const d = countrySel.data().find((f) => f.properties.iso_a3 === state.pinned);
-    if (d) el.tooltip.innerHTML = tooltipHTML(d);
+  // Re-render whichever tooltip is currently visible (pinned, else hovered) so
+  // its values track year/metric changes — e.g. while the play animation runs
+  // and no mouse events are firing. Position is left untouched.
+  function refreshActiveTooltip() {
+    const iso = state.pinned;
+    const d = iso
+      ? countrySel.data().find((f) => f.properties.iso_a3 === iso)
+      : state.hovered;
+    if (d && !el.tooltip.hidden) el.tooltip.innerHTML = tooltipHTML(d);
   }
 
   function togglePin(d) {
@@ -334,7 +342,7 @@
     });
     renderLegend();
     updateFills();
-    refreshPinnedTooltip();
+    refreshActiveTooltip();
   }
 
   function setYear(year, { updateSlider = true } = {}) {
@@ -343,7 +351,7 @@
     el.yearValue.textContent = year;
     if (updateSlider) el.slider.value = year;
     updateFills();
-    refreshPinnedTooltip();
+    refreshActiveTooltip();
   }
 
   // debounce slider so dragging doesn't thrash transitions
